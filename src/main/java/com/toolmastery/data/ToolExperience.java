@@ -3,14 +3,17 @@ package com.toolmastery.data;
 import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-import com.toolmastery.progression.MasteryLevels;
+
 import java.util.Set;
+
+import com.toolmastery.progression.MasteryLevels;
 
 public class ToolExperience {
 
     public static final String NBT_LEVEL = "TM_Level";
     public static final String NBT_XP = "TM_XP";
     public static final String NBT_CATEGORY = "TM_Category";
+    public static final int MAX_LEVEL = MasteryLevels.MAX_LEVEL;
 
     public enum Category {
         MINING, CUTTING, HARVESTING, COMBAT
@@ -45,13 +48,14 @@ public class ToolExperience {
         }
     }
 
-    /**
-     * Infere a categoria com base no tipo da ferramenta.
-     * - Picareta → MINING
-     * - Machado → CUTTING
-     * - Tesoura/Enxada → HARVESTING
-     * - Espada → COMBAT
-     */
+    public static void setLevel(ItemStack stack, int level) {
+        getTag(stack).setInteger(NBT_LEVEL, level);
+    }
+
+    public static void setXP(ItemStack stack, int xp) {
+        getTag(stack).setInteger(NBT_XP, xp);
+    }
+
     public static Category getItemCategory(ItemStack stack) {
         Set<String> classes = stack.getItem().getToolClasses(stack);
         if (classes.contains("pickaxe")) return Category.MINING;
@@ -61,8 +65,12 @@ public class ToolExperience {
         return null;
     }
 
-    public static void addXP(ItemStack stack, int amount, Category category) {
-        if (stack == null || stack.isEmpty() || amount <= 0 || category == null) return;
+    /**
+     * Adiciona XP e retorna o novo nível.
+     * Se o nível subir, retorna o novo nível (> nível anterior).
+     */
+    public static int addXP(ItemStack stack, int amount, Category category) {
+        if (stack == null || stack.isEmpty() || amount <= 0 || category == null) return getLevel(stack);
 
         NBTTagCompound tag = getTag(stack);
 
@@ -70,17 +78,46 @@ public class ToolExperience {
         if (saved.isEmpty()) {
             tag.setString(NBT_CATEGORY, category.name());
         } else if (!saved.equals(category.name())) {
-            return; // categoria travada e diferente da ação atual
+            return getLevel(stack); // categoria travada e diferente
         }
 
-        int xp = tag.getInteger(NBT_XP) + amount;
-        int oldLevel = tag.getInteger(NBT_LEVEL);
+        int oldLevel = getLevel(stack);
+        int xp = getXP(stack) + amount;
         int newLevel = MasteryLevels.getLevelForXP(xp);
 
-        tag.setInteger(NBT_XP, xp);
-        if (newLevel > oldLevel) {
-            tag.setInteger(NBT_LEVEL, newLevel);
-            // Aqui você poderia enviar uma mensagem de "Level up!" ao jogador
+        setXP(stack, xp);
+        setLevel(stack, newLevel);
+
+        return newLevel;
+    }
+
+    /**
+     * Consome XP da ferramenta. Retorna true se conseguiu.
+     */
+    public static boolean consumeXP(ItemStack stack, int amount) {
+        int xp = getXP(stack);
+        if (xp < amount) return false;
+        setXP(stack, xp - amount);
+        setLevel(stack, MasteryLevels.getLevelForXP(xp - amount));
+        return true;
+    }
+
+    public static String getProgressBar(ItemStack stack) {
+        int level = getLevel(stack);
+        int xp = getXP(stack);
+        int xpForCurrent = MasteryLevels.getXPForLevel(level);
+        int xpForNext = MasteryLevels.getXPForLevel(level + 1);
+        int range = xpForNext - xpForCurrent;
+        int current = xp - xpForCurrent;
+
+        int bars = 10;
+        int filled = range > 0 ? (int) Math.round((double) current / range * bars) : bars;
+
+        StringBuilder sb = new StringBuilder("§7[");
+        for (int i = 0; i < bars; i++) {
+            sb.append(i < filled ? "§a|" : "§7|");
         }
+        sb.append("§7] §f").append(current).append("§7/§e").append(range);
+        return sb.toString();
     }
 }
