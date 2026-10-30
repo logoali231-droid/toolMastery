@@ -1,5 +1,4 @@
-
-package com.toolmastery.client.gui;
+package com.toolmastery.config.client.gui;
 
 import com.toolmastery.ToolMastery;
 import com.toolmastery.config.MasteryConfig;
@@ -9,8 +8,8 @@ import net.minecraft.client.gui.GuiScreen;
 
 import net.minecraftforge.fml.client.IModGuiFactory;
 import net.minecraftforge.fml.client.config.GuiConfig;
-import net.minecraftforge.fml.client.config.ConfigElement;
 import net.minecraftforge.fml.client.config.IConfigElement;
+import net.minecraftforge.common.config.ConfigElement;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,25 +32,21 @@ public class MasteryGuiFactory implements IModGuiFactory {
 
         List<IConfigElement> elements = new ArrayList<>();
 
-        elements.add(
-            new ConfigElement(
+        elements.add(new ConfigElement(
                 MasteryConfig.getConfig().getCategory("progression")
-            )
-        );
+        ));
 
-        elements.add(
-            new ConfigElement(
+        elements.add(new ConfigElement(
                 MasteryConfig.getConfig().getCategory("balance")
-            )
-        );
+        ));
 
         return new GuiConfig(
-            parentScreen,
-            elements,
-            ToolMastery.MODID,
-            false,
-            false,
-            "ToolMastery Configuration"
+                parentScreen,
+                elements,
+                ToolMastery.MODID,
+                false,
+                false,
+                "ToolMastery Configuration"
         );
     }
 
