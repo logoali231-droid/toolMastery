@@ -63,7 +63,7 @@ public class MiningEvents {
     @SubscribeEvent
     public void onBreakSpeed(BreakSpeed event) {
 
-        EntityPlayer player = event.getEntity();
+        EntityPlayer player = event.getEntityPlayer();
 
         if (player == null) return;
 

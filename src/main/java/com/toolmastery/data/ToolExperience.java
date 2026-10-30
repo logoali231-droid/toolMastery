@@ -3,7 +3,7 @@ package com.toolmastery.data;
 import net.minecraft.item.ItemSword;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NBTTagCompound;
-
+import com.toolmastery.progression.MasteryLevels;
 import java.util.Set;
 
 public class ToolExperience {
