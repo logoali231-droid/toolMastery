@@ -1,3 +1,4 @@
+
 package com.toolmastery.config;
 
 import net.minecraftforge.common.config.Configuration;
@@ -5,14 +6,19 @@ import java.io.File;
 
 public class MasteryConfig {
 
+    private static Configuration config;
+
     public static int BASE_XP = 1000;
     public static double XP_MULTIPLIER = 1.1;
     public static float BONUS_PER_LEVEL = 0.05f;
 
     public static void init(File configFile) {
-
-        Configuration config = new Configuration(configFile);
+        config = new Configuration(configFile);
         config.load();
+        sync();
+    }
+
+    public static void sync() {
 
         BASE_XP = config.get(
                 "progression",
@@ -27,7 +33,7 @@ public class MasteryConfig {
                 "progression",
                 "xpMultiplier",
                 1.1,
-                "Multiplicador de XP a cada nível",
+                "Multiplicador de XP por nível",
                 1.0,
                 10.0
         ).getDouble(1.1);
@@ -36,11 +42,17 @@ public class MasteryConfig {
                 "balance",
                 "bonusPerLevel",
                 0.05,
-                "Bônus de velocidade de mineração por nível",
+                "Bônus de velocidade por nível",
                 0.0,
                 1.0
         ).getDouble(0.05);
 
-        config.save();
+        if (config.hasChanged()) {
+            config.save();
+        }
+    }
+
+    public static Configuration getConfig() {
+        return config;
     }
 }

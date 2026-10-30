@@ -7,7 +7,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
-@Mod(modid = ToolMastery.MODID, name = ToolMastery.NAME, version = ToolMastery.VERSION)
+@Mod(modid = ToolMastery.MODID, name = ToolMastery.NAME, version = ToolMastery.VERSION, guiFactory = "com.toolmastery.client.gui.MasteryGuiFactory")
 public class ToolMastery {
     public static final String MODID = "toolmastery";
     public static final String NAME = "ToolMastery";
