@@ -6,7 +6,7 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.potion.PotionEffect;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.init.PotionTypes;
+import net.minecraft.init.MobEffects;
 
 import java.util.Random;
 
@@ -53,7 +53,7 @@ public class MasteryAbilities {
         if (ToolExperience.getCategory(stack) != ToolExperience.Category.COMBAT) return;
         if (ToolExperience.getLevel(stack) < 10) return;
         if (RAND.nextFloat() < 0.10f) {
-            target.addPotionEffect(new PotionEffect(PotionTypes.WEAKNESS, 100, 0));
+            target.addPotionEffect(new PotionEffect(MobEffects.WEAKNESS, 100, 0));
         }
     }
 }
