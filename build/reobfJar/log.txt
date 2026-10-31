@@ -1,6 +1,6 @@
 Args: "--in-jar", "/home/dipper/toolMastery/build/libs/ToolMastery-1.0.0.jar", "--out-jar", "/home/dipper/toolMastery/build/reobfJar/output.jar", "--srg-in", "/home/dipper/toolMastery/build/createMcpToSrg/output.tsrg", "--live"
 Classpath: /home/dipper/.gradle/caches/forge_gradle/maven_downloader/net/md-5/SpecialSource/1.8.3/SpecialSource-1.8.3-shaded.jar
-Classpath: /home/dipper/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.12.2-14.23.5.2855_mapped_snapshot_20171003-1.12/forge-1.12.2-14.23.5.2855_mapped_snapshot_20171003-1.12.jar
+Classpath: /home/dipper/.gradle/caches/forge_gradle/minecraft_user_repo/net/minecraftforge/forge/1.12.2-14.23.5.2855_mapped_snapshot_20171003-1.12/forge-1.12.2-14.23.5.2855_mapped_snapshot_20171003-1.12-recomp.jar
 Classpath: /home/dipper/.gradle/caches/forge_gradle/minecraft_repo/versions/1.12.2/client-extra.jar
 Classpath: /home/dipper/.gradle/caches/modules-2/files-2.1/com.google.code.findbugs/jsr305/3.0.1/f7be08ec23c21485b9b5a1cf1654c2ec8c58168d/jsr305-3.0.1.jar
 Classpath: /home/dipper/.gradle/caches/modules-2/files-2.1/net.minecraftforge/mergetool/1.0.13/c18446ec4d5814f447d7a79b314ba9a27cc8dbc8/mergetool-1.0.13-forge.jar

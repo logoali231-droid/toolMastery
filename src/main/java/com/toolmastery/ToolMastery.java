@@ -22,7 +22,10 @@ public class ToolMastery {
     public static ToolMastery instance;
 
     @Mod.EventHandler
+
+    
     public void preInit(FMLPreInitializationEvent event) {
+            MasteryConfig.init(event.getSuggestedConfigurationFile());   // <-- adicione esta linha
         MinecraftForge.EVENT_BUS.register(new MiningEvents());
         MinecraftForge.EVENT_BUS.register(new CombatEvents());
         MinecraftForge.EVENT_BUS.register(new CombatBonusEvents()); // new handler, see File 7
