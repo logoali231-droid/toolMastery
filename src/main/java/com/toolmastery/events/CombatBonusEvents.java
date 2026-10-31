@@ -1,4 +1,4 @@
-package main.java.com.toolmastery.events;
+package com.toolmastery.events;
 
 import com.toolmastery.abilities.MasteryAbilities;
 import com.toolmastery.capability.ToolExperience;

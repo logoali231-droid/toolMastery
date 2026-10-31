@@ -1,11 +1,7 @@
 package com.toolmastery.events;
 
-import com.toolmastery.data.ToolExperience;
-import net.minecraft.entity.EntityLivingBase;
-import net.minecraft.entity.player.EntityPlayer;
-import net.minecraft.item.ItemStack;
-import net.minecraftforge.event.entity.living.LivingAttackEvent;
-import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import com.toolmastery.features.MasteryAbilities;   // <-- correct package
+import com.toolmastery.data.ToolExperience;        // <-- correct package
 
 public class CombatEvents {
 
