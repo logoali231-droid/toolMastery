@@ -82,20 +82,18 @@ public class ToolExperience {
      * Adiciona XP e retorna o novo nível.
      * Se o nível subir, retorna o novo nível (> nível anterior).
      */
-    public static int addXP(ItemStack stack, int amount, Category category) {
-        NBTTagCompound tag = getTag(stack);
-        int xp = tag.getInteger("xp");
-        int level = tag.getInteger("level");
-        if (level >= MasteryLevels.MAX_LEVEL)
-            return level;
+public static int addXP(ItemStack stack, int amount, Category category) {
+    NBTTagCompound tag = getTag(stack);
+    int xp = tag.getInteger(NBT_XP);      // use NBT_XP
+    int level = tag.getInteger(NBT_LEVEL); // use NBT_LEVEL
+    if (level >= MasteryLevels.MAX_LEVEL) return level;
 
-        xp += amount;
-        int newLevel = MasteryLevels.getLevelForXP(xp);
-        tag.setInteger("xp", xp);
-        tag.setInteger("level", newLevel);
-        return newLevel; // no change to return — just documenting the contract
-    }
-
+    xp += amount;
+    int newLevel = MasteryLevels.getLevelForXP(xp);
+    tag.setInteger(NBT_XP, xp);            // use NBT_XP
+    tag.setInteger(NBT_LEVEL, newLevel);   // use NBT_LEVEL
+    return newLevel;
+}
     public static String getProgressBar(ItemStack stack) {
         int level = getLevel(stack);
         int xp = getXP(stack);

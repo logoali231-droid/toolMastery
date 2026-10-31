@@ -39,6 +39,7 @@ public class MiningEvents {
         ToolExperience.Category cat = ToolExperience.getItemCategory(stack);
         if (cat != ToolExperience.Category.MINING)
             return;
+        ToolExperience.ensureCategory(stack, cat);
 
         int oldLevel = ToolExperience.getLevel(stack);
         int newLevel = ToolExperience.addXP(stack, XP_PER_BLOCK, cat);
