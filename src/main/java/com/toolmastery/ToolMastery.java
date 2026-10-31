@@ -5,6 +5,7 @@ import com.toolmastery.events.CombatEvents;
 import com.toolmastery.events.MiningEvents;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.relauncher.Side;   
 import net.minecraftforge.fml.common.event.FMLPreInitializationEvent;
 
 @Mod(modid = ToolMastery.MODID, name = ToolMastery.NAME, version = ToolMastery.VERSION, guiFactory = "com.toolmastery.config.client.gui.MasteryGuiFactory")
@@ -16,12 +17,13 @@ public class ToolMastery {
     @Mod.Instance
     public static ToolMastery instance;
 
-    @Mod.EventHandler
+    @EventHandler
     public void preInit(FMLPreInitializationEvent event) {
-        MasteryConfig.init(event.getSuggestedConfigurationFile());
-
-        // Registra os listeners de evento
         MinecraftForge.EVENT_BUS.register(new MiningEvents());
         MinecraftForge.EVENT_BUS.register(new CombatEvents());
+        MinecraftForge.EVENT_BUS.register(new CombatBonusEvents()); // new handler, see File 7
+        if (event.getSide().isClient()) {
+            MinecraftForge.EVENT_BUS.register(new ItemEvents());
+        }
     }
 }

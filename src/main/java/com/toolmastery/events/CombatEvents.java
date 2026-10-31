@@ -11,17 +11,25 @@ public class CombatEvents {
 
     @SubscribeEvent
     public void onLivingAttack(LivingAttackEvent event) {
-        // Verifica quem está atacando
-        if (!(event.getSource().getTrueSource() instanceof EntityPlayer)) return;
-
+        if (!(event.getSource().getTrueSource() instanceof EntityPlayer))
+            return;
         EntityPlayer player = (EntityPlayer) event.getSource().getTrueSource();
+        if (player.isCreative())
+            return;
+
         ItemStack stack = player.getHeldItemMainhand();
-        if (stack.isEmpty()) return;
+        if (stack.isEmpty())
+            return;
 
-        ToolExperience.Category toolCat = ToolExperience.getItemCategory(stack);
-        if (toolCat != ToolExperience.Category.COMBAT) return;
+        ToolExperience.Category cat = ToolExperience.getItemCategory(stack);
+        if (cat != ToolExperience.Category.COMBAT)
+            return;
 
-        ToolExperience.ensureCategory(stack, ToolExperience.Category.COMBAT);
-        ToolExperience.addXP(stack, 2, ToolExperience.Category.COMBAT);
+        int oldLevel = ToolExperience.getLevel(stack);
+        int newLevel = ToolExperience.addXP(stack, XP_PER_HIT, cat);
+
+        if (newLevel > oldLevel) {
+            LevelUpEvents.trigger(player, stack, newLevel);
+        }
     }
 }

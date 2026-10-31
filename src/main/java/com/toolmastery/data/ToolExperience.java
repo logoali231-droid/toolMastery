@@ -38,7 +38,8 @@ public class ToolExperience {
 
     public static Category getCategory(ItemStack stack) {
         String name = getTag(stack).getString(NBT_CATEGORY);
-        if (name.isEmpty()) return null;
+        if (name.isEmpty())
+            return null;
         return Category.valueOf(name);
     }
 
@@ -57,12 +58,23 @@ public class ToolExperience {
     }
 
     public static Category getItemCategory(ItemStack stack) {
-        Set<String> classes = stack.getItem().getToolClasses(stack);
-        if (classes.contains("pickaxe")) return Category.MINING;
-        if (classes.contains("axe")) return Category.CUTTING;
-        if (classes.contains("shears") || classes.contains("hoe")) return Category.HARVESTING;
-        if (stack.getItem() instanceof ItemSword) return Category.COMBAT;
-        return null;
+        if (stack.isEmpty())
+            return Category.NONE;
+        Item item = stack.getItem();
+        Set<String> classes = item.getToolClasses(stack);
+        if (classes.contains("pickaxe"))
+            return Category.MINING;
+        if (classes.contains("axe"))
+            return Category.MINING;
+        if (classes.contains("shovel"))
+            return Category.MINING;
+        if (classes.contains("shears"))
+            return Category.MINING;
+        if (classes.contains("hoe"))
+            return Category.MINING;
+        if (classes.contains("sword"))
+            return Category.COMBAT;
+        return Category.OTHER;
     }
 
     /**
@@ -70,36 +82,34 @@ public class ToolExperience {
      * Se o nível subir, retorna o novo nível (> nível anterior).
      */
     public static int addXP(ItemStack stack, int amount, Category category) {
-        if (stack == null || stack.isEmpty() || amount <= 0 || category == null) return getLevel(stack);
-
         NBTTagCompound tag = getTag(stack);
+        int xp = tag.getInteger("xp");
+        int level = tag.getInteger("level");
+        if (level >= MasteryLevels.MAX_LEVEL)
+            return level;
 
-        String saved = tag.getString(NBT_CATEGORY);
-        if (saved.isEmpty()) {
-            tag.setString(NBT_CATEGORY, category.name());
-        } else if (!saved.equals(category.name())) {
-            return getLevel(stack); // categoria travada e diferente
-        }
-
-        int oldLevel = getLevel(stack);
-        int xp = getXP(stack) + amount;
+        xp += amount;
         int newLevel = MasteryLevels.getLevelForXP(xp);
-
-        setXP(stack, xp);
-        setLevel(stack, newLevel);
-
-        return newLevel;
+        tag.setInteger("xp", xp);
+        tag.setInteger("level", newLevel);
+        return newLevel; // no change to return — just documenting the contract
     }
 
     /**
      * Consome XP da ferramenta. Retorna true se conseguiu.
      */
-    public static boolean consumeXP(ItemStack stack, int amount) {
-        int xp = getXP(stack);
-        if (xp < amount) return false;
-        setXP(stack, xp - amount);
-        setLevel(stack, MasteryLevels.getLevelForXP(xp - amount));
-        return true;
+    public static int addXP(ItemStack stack, int amount, Category category) {
+        NBTTagCompound tag = getTag(stack);
+        int xp = tag.getInteger("xp");
+        int level = tag.getInteger("level");
+        if (level >= MasteryLevels.MAX_LEVEL)
+            return level;
+
+        xp += amount;
+        int newLevel = MasteryLevels.getLevelForXP(xp);
+        tag.setInteger("xp", xp);
+        tag.setInteger("level", newLevel);
+        return newLevel; // no change to return — just documenting the contract
     }
 
     public static String getProgressBar(ItemStack stack) {

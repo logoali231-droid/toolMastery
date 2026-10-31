@@ -16,72 +16,50 @@ import net.minecraft.item.ItemStack;
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import com.toolmastery.events.LevelUpEvents;   // same package — may already be implicit
+import net.minecraft.block.state.IBlockState;
 
 public class MiningEvents {
 
     @SubscribeEvent
-    public void onBlockBreak(BreakEvent event) {
-
-        // XP deve ser processado somente no servidor.
-        if (event.getWorld().isRemote) return;
-
+    public void onBlockBreak(BlockEvent.BreakEvent event) {
         EntityPlayer player = event.getPlayer();
-
-        if (player == null || player.capabilities.isCreativeMode) {
+        if (player == null || player.isCreative())
             return;
-        }
 
         ItemStack stack = player.getHeldItemMainhand();
+        if (stack.isEmpty())
+            return;
 
-        if (stack.isEmpty()) return;
+        ToolExperience.Category cat = ToolExperience.getItemCategory(stack);
+        if (cat != ToolExperience.Category.MINING)
+            return;
 
-        IBlockState state = event.getState();
-        Block block = state.getBlock();
+        int oldLevel = ToolExperience.getLevel(stack);
+        int newLevel = ToolExperience.addXP(stack, XP_PER_BLOCK, cat);
 
-        ToolExperience.Category blockCat = categorizeBlock(block);
-
-        if (blockCat == null) return;
-
-        ToolExperience.Category toolCat =
-                ToolExperience.getItemCategory(stack);
-
-        if (toolCat == null || toolCat != blockCat) return;
-
-        // Define a categoria da ferramenta na primeira utilização.
-        ToolExperience.ensureCategory(stack, toolCat);
-
-        int xp = 1;
-
-        if (blockCat == ToolExperience.Category.MINING
-                && block instanceof BlockOre) {
-            xp = 3;
+        if (newLevel > oldLevel) {
+            LevelUpEvents.trigger(player, stack, newLevel);
         }
 
-        ToolExperience.addXP(stack, xp, blockCat);
+        if (MasteryAbilities.shouldDropExtra(stack)) {
+            IBlockState state = event.getWorld().getBlockState(event.getPos());
+            state.getBlock().dropBlockAsItem(event.getWorld(), event.getPos(), state, 1);
+        }
     }
 
     @SubscribeEvent
-    public void onBreakSpeed(BreakSpeed event) {
-
-        EntityPlayer player = event.getEntityPlayer();
-
-        if (player == null) return;
-
-        ItemStack stack = player.getHeldItemMainhand();
-
-        if (stack.isEmpty()) return;
-
+    public void onBreakSpeed(PlayerEvent.BreakSpeed event) {
+        ItemStack stack = event.getEntityPlayer().getHeldItemMainhand();
+        if (stack.isEmpty())
+            return;
+        if (ToolExperience.getItemCategory(stack) != ToolExperience.Category.MINING)
+            return;
         int level = ToolExperience.getLevel(stack);
-
-        if (level > 1) {
-
-            float bonus =
-                    MasteryLevels.getMiningSpeedBonus(level);
-
-            event.setNewSpeed(
-                    event.getNewSpeed() * (1.0f + bonus)
-            );
-        }
+        if (level <= 1)
+            return;
+        float bonus = MasteryAbilities.getMiningSpeedBonus(stack);
+        event.setNewSpeed(event.getOriginalSpeed() * (1.0f + bonus));
     }
 
     private ToolExperience.Category categorizeBlock(Block block) {
