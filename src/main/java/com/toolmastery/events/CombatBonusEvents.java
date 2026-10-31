@@ -1,7 +1,6 @@
 package com.toolmastery.events;
-
-import com.toolmastery.abilities.MasteryAbilities;
-import com.toolmastery.capability.ToolExperience;
+import com.toolmastery.features.MasteryAbilities;
+import com.toolmastery.data.ToolExperience;
 import net.minecraft.entity.EntityLivingBase;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;

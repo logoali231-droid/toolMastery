@@ -2,7 +2,9 @@
 package com.toolmastery.events;
 
 import com.toolmastery.data.ToolExperience;
-import com.toolmastery.progression.MasteryLevels;
+import com.toolmastery.features.MasteryAbilities;
+import net.minecraftforge.event.world.BlockEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockBush;
@@ -12,14 +14,17 @@ import net.minecraft.block.BlockOre;
 import net.minecraft.block.state.IBlockState;
 import net.minecraft.entity.player.EntityPlayer;
 import net.minecraft.item.ItemStack;
+import com.toolmastery.features.MasteryAbilities; // <-- adicione
 
 import net.minecraftforge.event.entity.player.PlayerEvent.BreakSpeed;
 import net.minecraftforge.event.world.BlockEvent.BreakEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
-import com.toolmastery.events.LevelUpEvents;   // same package — may already be implicit
+import com.toolmastery.events.LevelUpEvents; // same package — may already be implicit
 import net.minecraft.block.state.IBlockState;
 
 public class MiningEvents {
+
+    private static final int XP_PER_BLOCK = 1;
 
     @SubscribeEvent
     public void onBlockBreak(BlockEvent.BreakEvent event) {

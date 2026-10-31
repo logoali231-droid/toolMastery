@@ -1,9 +1,15 @@
 package com.toolmastery.events;
 
-import com.toolmastery.features.MasteryAbilities;   // <-- correct package
-import com.toolmastery.data.ToolExperience;        // <-- correct package
+
+import com.toolmastery.data.ToolExperience;
+import net.minecraft.entity.player.EntityPlayer; // <-- adicione
+import net.minecraft.item.ItemStack; // <-- adicione
+import net.minecraftforge.event.entity.living.LivingAttackEvent; // <-- adicione
+import net.minecraftforge.fml.common.eventhandler.SubscribeEvent; // <-- adicione package
 
 public class CombatEvents {
+
+    private static final int XP_PER_HIT = 1;
 
     @SubscribeEvent
     public void onLivingAttack(LivingAttackEvent event) {

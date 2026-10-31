@@ -1,8 +1,9 @@
 package com.toolmastery.data;
 
 import net.minecraft.item.ItemSword;
-import net.minecraft.item.ItemStack;
+import net.minecraft.item.Item; // <-- adicione esta linha
 import net.minecraft.nbt.NBTTagCompound;
+import net.minecraft.item.ItemStack;
 
 import java.util.Set;
 
@@ -59,7 +60,7 @@ public class ToolExperience {
 
     public static Category getItemCategory(ItemStack stack) {
         if (stack.isEmpty())
-            return Category.NONE;
+            return null;
         Item item = stack.getItem();
         Set<String> classes = item.getToolClasses(stack);
         if (classes.contains("pickaxe"))
@@ -74,29 +75,12 @@ public class ToolExperience {
             return Category.MINING;
         if (classes.contains("sword"))
             return Category.COMBAT;
-        return Category.OTHER;
+        return null;
     }
 
     /**
      * Adiciona XP e retorna o novo nível.
      * Se o nível subir, retorna o novo nível (> nível anterior).
-     */
-    public static int addXP(ItemStack stack, int amount, Category category) {
-        NBTTagCompound tag = getTag(stack);
-        int xp = tag.getInteger("xp");
-        int level = tag.getInteger("level");
-        if (level >= MasteryLevels.MAX_LEVEL)
-            return level;
-
-        xp += amount;
-        int newLevel = MasteryLevels.getLevelForXP(xp);
-        tag.setInteger("xp", xp);
-        tag.setInteger("level", newLevel);
-        return newLevel; // no change to return — just documenting the contract
-    }
-
-    /**
-     * Consome XP da ferramenta. Retorna true se conseguiu.
      */
     public static int addXP(ItemStack stack, int amount, Category category) {
         NBTTagCompound tag = getTag(stack);
@@ -129,5 +113,22 @@ public class ToolExperience {
         }
         sb.append("§7] §f").append(current).append("§7/§e").append(range);
         return sb.toString();
+    }
+
+    /**
+     * Tenta consumir XP da ferramenta. Retorna true se conseguiu.
+     */
+    public static boolean consumeXP(ItemStack stack, int amount) {
+        if (stack.isEmpty())
+            return false;
+        NBTTagCompound tag = getTag(stack);
+        int xp = tag.getInteger("xp");
+        if (xp < amount)
+            return false;
+
+        int newXP = xp - amount;
+        tag.setInteger("xp", newXP);
+        tag.setInteger("level", MasteryLevels.getLevelForXP(newXP));
+        return true;
     }
 }

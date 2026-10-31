@@ -14,12 +14,27 @@ public class MasteryAbilities {
     private static final Random RAND = new Random();
 
     /**
+     * Retorna o bônus de velocidade de mineração (ex: 0.1 = +10%).
+     * Baseado no nível da ferramenta.
+     */
+    public static float getMiningSpeedBonus(ItemStack stack) {
+        int level = ToolExperience.getLevel(stack);
+        if (level <= 1)
+            return 0.0f;
+        // Exemplo: +10% por nível acima do 1, limitado a +100%
+        float bonus = 0.1f * (level - 1);
+        return Math.min(bonus, 1.0f);
+    }
+
+    /**
      * Chance de não gastar durabilidade ao quebrar bloco.
      */
     public static boolean shouldSaveDurability(ItemStack stack) {
-        if (stack == null || stack.isEmpty()) return false;
+        if (stack == null || stack.isEmpty())
+            return false;
         ToolExperience.Category cat = ToolExperience.getCategory(stack);
-        if (cat == null) return false;
+        if (cat == null)
+            return false;
         int level = ToolExperience.getLevel(stack);
         float chance = MasteryLevels.getDurabilitySaveChance(level);
         return RAND.nextFloat() < chance;
@@ -29,8 +44,10 @@ public class MasteryAbilities {
      * Chance de drop extra ao minerar minério (nível 10+).
      */
     public static boolean shouldDropExtra(ItemStack stack) {
-        if (stack == null || stack.isEmpty()) return false;
-        if (ToolExperience.getCategory(stack) != ToolExperience.Category.MINING) return false;
+        if (stack == null || stack.isEmpty())
+            return false;
+        if (ToolExperience.getCategory(stack) != ToolExperience.Category.MINING)
+            return false;
         int level = ToolExperience.getLevel(stack);
         float chance = MasteryLevels.getExtraDropChance(level);
         return RAND.nextFloat() < chance;
@@ -40,8 +57,10 @@ public class MasteryAbilities {
      * Bônus de dano para espadas.
      */
     public static float getCombatDamageBonus(ItemStack stack) {
-        if (stack == null || stack.isEmpty()) return 0.0f;
-        if (ToolExperience.getCategory(stack) != ToolExperience.Category.COMBAT) return 0.0f;
+        if (stack == null || stack.isEmpty())
+            return 0.0f;
+        if (ToolExperience.getCategory(stack) != ToolExperience.Category.COMBAT)
+            return 0.0f;
         return MasteryLevels.getCombatDamageBonus(ToolExperience.getLevel(stack));
     }
 
@@ -49,9 +68,12 @@ public class MasteryAbilities {
      * Aplica efeito de fraqueza ao alvo se a espada for nível 10+ (chance 10%).
      */
     public static void maybeApplyWeakness(EntityPlayer attacker, EntityLivingBase target, ItemStack stack) {
-        if (target == null || attacker == null) return;
-        if (ToolExperience.getCategory(stack) != ToolExperience.Category.COMBAT) return;
-        if (ToolExperience.getLevel(stack) < 10) return;
+        if (target == null || attacker == null)
+            return;
+        if (ToolExperience.getCategory(stack) != ToolExperience.Category.COMBAT)
+            return;
+        if (ToolExperience.getLevel(stack) < 10)
+            return;
         if (RAND.nextFloat() < 0.10f) {
             target.addPotionEffect(new PotionEffect(MobEffects.WEAKNESS, 100, 0));
         }
