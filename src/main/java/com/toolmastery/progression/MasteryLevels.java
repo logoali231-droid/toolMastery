@@ -3,99 +3,126 @@ package com.toolmastery.progression;
 import com.toolmastery.config.MasteryConfig;
 import com.toolmastery.data.ToolExperience;
 
+import net.minecraft.item.ItemStack;
+
 public class MasteryLevels {
-    public static final int MAX_LEVEL = 20;
+
+    public static final int MAX_LEVEL = 10;
 
     /**
-     * Fórmula de progressão:
-     * $$XP(n) = BASE\_XP \times XP\_MULTIPLIER^{(n-1)}$$
+     * XP base para ir do nível 1 para o nível 2.
+     * = 60% da durabilidade máxima da ferramenta.
      */
-    public static int getXPForLevel(int level) {
-        if (level <= 1) return 0;
-        return (int) (MasteryConfig.BASE_XP * Math.pow(MasteryConfig.XP_MULTIPLIER, level - 1));
+    public static int getBaseXP(ItemStack stack) {
+        if (stack == null || stack.isEmpty())
+            return MasteryConfig.BASE_XP;
+        int max = stack.getMaxDamage();
+        if (max <= 0)
+            return MasteryConfig.BASE_XP;
+        float pct = MasteryConfig.DURABILITY_PERCENT / 100f;
+        return Math.max(10, Math.round(max * pct));
     }
 
-    public static int getLevelForXP(int xp) {
+    public static float getDurabilitySaveChance(int level) {
+        int start = MasteryConfig.DURABILITY_SAVE_START_LEVEL;
+        if (level < start)
+            return 0.0f;
+        float perLevel = MasteryConfig.DURABILITY_SAVE_PER_LEVEL_PERCENT / 100f;
+        float max = MasteryConfig.DURABILITY_SAVE_MAX_PERCENT / 100f;
+        float chance = perLevel * (level - start + 1);
+        return Math.min(chance, max);
+    }
+
+    /**
+     * XP cumulativo necessário para ALCANÇAR o nível informado.
+     * getXPForLevel(1, stack) == 0
+     * getXPForLevel(2, stack) == getBaseXP(stack)
+     */
+    public static int getXPForLevel(int level, ItemStack stack) {
+        if (level <= 1)
+            return 0;
+        if (level > MAX_LEVEL)
+            level = MAX_LEVEL;
+        int base = getBaseXP(stack);
+        double total = 0;
+        double perLevel = base;
+        for (int i = 1; i < level; i++) {
+            total += perLevel;
+            perLevel *= MasteryConfig.XP_MULTIPLIER;
+        }
+        return (int) Math.round(total);
+    }
+
+    /**
+     * Nível correspondente a uma quantidade de XP cumulativo.
+     */
+    public static int getLevelForXP(int xp, ItemStack stack) {
+        if (xp <= 0)
+            return 1;
+        int base = getBaseXP(stack);
         int level = 1;
-        while (level < MAX_LEVEL && getXPForLevel(level + 1) <= xp) {
+        double cumulative = 0;
+        double perLevel = base;
+        while (level < MAX_LEVEL) {
+            if (xp < cumulative + perLevel)
+                break;
+            cumulative += perLevel;
+            perLevel *= MasteryConfig.XP_MULTIPLIER;
             level++;
         }
         return level;
     }
 
+    /**
+     * Bônus de velocidade de mineração por nível.
+     */
     public static float getMiningSpeedBonus(int level) {
-        if (level <= 1) return 0.0f;
         return (level - 1) * MasteryConfig.BONUS_PER_LEVEL;
     }
 
+    /**
+     * Bônus de dano de combate por nível.
+     */
     public static float getCombatDamageBonus(int level) {
-        if (level <= 1) return 0.0f;
-        return (level - 1) * 0.5f; // +0.5 de dano por nível acima de 1
+        return 0.5f * (level - 1);
     }
 
-    /**
-     * Chance de 0% a 38% (nível 20) de não gastar durabilidade.
-     */
-    public static float getDurabilitySaveChance(int level) {
-        if (level <= 1) return 0.0f;
-        return Math.min((level - 1) * 0.02f, 0.38f);
-    }
-
-    /**
-     * Chance de drop extra de minério, liberada apenas no nível 10+.
-     */
     public static float getExtraDropChance(int level) {
-        return level >= 10 ? 0.05f : 0.0f;
+        int start = MasteryConfig.EXTRA_DROP_START_LEVEL;
+        if (level < start)
+            return 0.0f;
+        float perLevel = MasteryConfig.EXTRA_DROP_PER_LEVEL_PERCENT / 100f;
+        float max = MasteryConfig.EXTRA_DROP_MAX_PERCENT / 100f;
+        float chance = perLevel * (level - start + 1);
+        return Math.min(chance, max);
     }
 
-    public static String getAbilityName(ToolExperience.Category cat, int level) {
-        switch (cat) {
-            case MINING:
-                if (level >= 15) return "Extração Instintiva";
-                if (level >= 10) return "Veia Rica";
-                if (level >= 5) return "Toque Leve";
-                break;
-            case CUTTING:
-                if (level >= 10) return "Lenhador Incansável";
-                if (level >= 5) return "Corte Preciso";
-                break;
-            case HARVESTING:
-                if (level >= 10) return "Colheita Abundante";
-                if (level >= 5) return "Mãos Cuidadosas";
-                break;
-            case COMBAT:
-                if (level >= 15) return "Golpe Pesado";
-                if (level >= 10) return "Ataque Fraquejante";
-                if (level >= 5) return "Lâmina Afiada";
-                break;
-        }
-        return null;
-    }
-
+        /**
+     * Descrição textual da habilidade ativa neste nível, para o tooltip.
+     * Retorna "" se o nível não desbloqueia nada.
+     */
     public static String getAbilityDescription(ToolExperience.Category cat, int level) {
-        String name = getAbilityName(cat, level);
-        if (name == null) return null;
+        if (cat == null) return "";
+        if (level < 3) return "";
 
         switch (cat) {
             case MINING:
-                if (level >= 15) return "§7Chance de não gastar durabilidade e drop extra.";
-                if (level >= 10) return "§75% de chance de drop extra em minérios.";
-                if (level >= 5) return "§7Até §f38%§7 de chance de não gastar durabilidade.";
+                if (level >= 10) return "\u00A7bMineração Aprimorada X";
+                if (level >= 6)  return "\u00A7bDrop Extra";
+                if (level >= 3)  return "\u00A7bDurabilidade Economizada";
                 break;
-            case CUTTING:
-                if (level >= 10) return "§7Reduz desgaste ao cortar troncos.";
-                if (level >= 5) return "§7Chance de não gastar durabilidade.";
-                break;
-            case HARVESTING:
-                if (level >= 10) return "§7Chance de drop extra de sementes/plantas.";
-                if (level >= 5) return "§7Chance de não gastar durabilidade.";
-                break;
+
             case COMBAT:
-                if (level >= 15) return "§7+" + (int)(getCombatDamageBonus(level)) + " de dano e chance de fraqueza.";
-                if (level >= 10) return "§7+" + (int)(getCombatDamageBonus(level)) + " de dano.";
-                if (level >= 5) return "§7+" + (int)(getCombatDamageBonus(level)) + " de dano.";
+                if (level >= 10) return "\u00A7cMestre do Combate";
+                if (level >= 6)  return "\u00A7cFraqueza";
+                if (level >= 3)  return "\u00A7cDano Extra";
                 break;
+
+            default:
+                return "";
         }
-        return name;
+        return "";
     }
+
+    
 }

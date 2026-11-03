@@ -82,23 +82,25 @@ public class ToolExperience {
      * Adiciona XP e retorna o novo nível.
      * Se o nível subir, retorna o novo nível (> nível anterior).
      */
-public static int addXP(ItemStack stack, int amount, Category category) {
-    NBTTagCompound tag = getTag(stack);
-    int xp = tag.getInteger(NBT_XP);      // use NBT_XP
-    int level = tag.getInteger(NBT_LEVEL); // use NBT_LEVEL
-    if (level >= MasteryLevels.MAX_LEVEL) return level;
+    public static int addXP(ItemStack stack, int amount, Category category) {
+        NBTTagCompound tag = getTag(stack);
+        int xp = tag.getInteger(NBT_XP); // use NBT_XP
+        int level = tag.getInteger(NBT_LEVEL); // use NBT_LEVEL
+        if (level >= MasteryLevels.MAX_LEVEL)
+            return level;
 
-    xp += amount;
-    int newLevel = MasteryLevels.getLevelForXP(xp);
-    tag.setInteger(NBT_XP, xp);            // use NBT_XP
-    tag.setInteger(NBT_LEVEL, newLevel);   // use NBT_LEVEL
-    return newLevel;
-}
+        xp += amount;
+        int newLevel = MasteryLevels.getLevelForXP(xp, stack); // <-- passa stack
+        tag.setInteger(NBT_XP, xp);
+        tag.setInteger(NBT_LEVEL, newLevel);
+        return newLevel;
+    }
+
     public static String getProgressBar(ItemStack stack) {
         int level = getLevel(stack);
         int xp = getXP(stack);
-        int xpForCurrent = MasteryLevels.getXPForLevel(level);
-        int xpForNext = MasteryLevels.getXPForLevel(level + 1);
+        int xpForCurrent = MasteryLevels.getXPForLevel(level, stack);
+        int xpForNext = MasteryLevels.getXPForLevel(level + 1, stack);
         int range = xpForNext - xpForCurrent;
         int current = xp - xpForCurrent;
 
@@ -125,8 +127,8 @@ public static int addXP(ItemStack stack, int amount, Category category) {
             return false;
 
         int newXP = xp - amount;
-        tag.setInteger("xp", newXP);
-        tag.setInteger("level", MasteryLevels.getLevelForXP(newXP));
+        tag.setInteger(NBT_XP, newXP);
+        tag.setInteger(NBT_LEVEL, MasteryLevels.getLevelForXP(newXP, stack)); // <-- passa stack
         return true;
     }
 }
